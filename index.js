@@ -8,6 +8,9 @@ const PORT = 3000;
 // Middleware to parse JSON requests
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.send('Hello World!');});
+
 // Route where all API traffic will come
 app.post('/api', async (req, res) => {
     const { route } = req.body;
@@ -104,15 +107,15 @@ app.post('/transactions', (req, res) => {
 });
 
 // Endpoint to handle GitHub Actions webhook
-// app.post('/github-webhook', (req, res) => {
-//     const webhookPayload = req.body;
+app.post('/github-webhook', (req, res) => {
+    const webhookPayload = req.body;
 
-//     // Log the webhook payload
-//     console.log('Received GitHub Actions webhook:', webhookPayload);
+    // Log the webhook payload
+    console.log('Received GitHub Actions webhook:', webhookPayload);
 
-//     // Respond to GitHub
-//     res.status(200).json({ message: 'Webhook received successfully' });
-// });
+    // Respond to GitHub
+    res.status(200).json({ message: 'Webhook received successfully' });
+});
 
 // Start the server
 app.listen(PORT, () => {
