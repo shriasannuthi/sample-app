@@ -109,7 +109,8 @@ app.post('/transactions', (req, res) => {
 // Endpoint to handle GitHub Actions webhook
 app.post('/github-webhook', (req, res) => {
     const webhookPayload = req.body;
-
+    console.log("webhook called");
+    
     // Log the webhook payload
     console.log('Received GitHub Actions webhook:', webhookPayload);
 
