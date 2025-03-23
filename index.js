@@ -111,15 +111,19 @@ app.post('/transactions', (req, res) => {
 });
 
 // Endpoint to handle GitHub Actions webhook
-app.post('/github-webhook', (req, res) => {
+app.post('/github-webhook', async (req, res) => {
     const webhookPayload = req.body;
     console.log("webhook called");
-    
-    // Log the webhook payload
     console.log('Received GitHub Actions webhook:', webhookPayload);
 
-    // Respond to GitHub
-    res.status(200).json({ message: 'Webhook received successfully' });
+    try {
+        await axios.post('http://localhost:5000/contextualTesting', webhookPayload);
+        res.status(200).json({ message: 'Webhook forwarded successfully' });
+    } catch (error) {
+        console.error('Error forwarding webhook:', error.message);
+        res.status(500).json({ error: 'Failed to forward webhook' });
+    }
+
 });
 
 // Start the server
