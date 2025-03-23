@@ -112,8 +112,9 @@ app.post('/github-webhook', (req, res) => {
     console.log("webhook called");
     
     // Log the webhook payload
+    // console.log('Received GitHub Actions webhook:', webhookPayload);
     console.log('Received GitHub Actions webhook:', webhookPayload);
-
+    
     // Respond to GitHub
     res.status(200).json({ message: 'Webhook received successfully' });
 });
