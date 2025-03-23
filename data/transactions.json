@@ -1,0 +1,72 @@
+[
+    {
+        "transactionId": 1,
+        "senderId": 12,
+        "receiverId": 45,
+        "amount": 250.75,
+        "date": "2023-01-01"
+    },
+    {
+        "transactionId": 2,
+        "senderId": 67,
+        "receiverId": 89,
+        "amount": 120.50,
+        "date": "2023-01-02"
+    },
+    {
+        "transactionId": 3,
+        "senderId": 34,
+        "receiverId": 78,
+        "amount": 500.00,
+        "date": "2023-01-03"
+    },
+    {
+        "transactionId": 4,
+        "senderId": 23,
+        "receiverId": 56,
+        "amount": 75.25,
+        "date": "2023-01-04"
+    },
+    {
+        "transactionId": 5,
+        "senderId": 90,
+        "receiverId": 12,
+        "amount": 300.00,
+        "date": "2023-01-05"
+    },
+    {
+        "transactionId": 6,
+        "senderId": 11,
+        "receiverId": 99,
+        "amount": 45.00,
+        "date": "2023-01-06"
+    },
+    {
+        "transactionId": 7,
+        "senderId": 78,
+        "receiverId": 34,
+        "amount": 150.00,
+        "date": "2023-01-07"
+    },
+    {
+        "transactionId": 8,
+        "senderId": 56,
+        "receiverId": 23,
+        "amount": 200.00,
+        "date": "2023-01-08"
+    },
+    {
+        "transactionId": 9,
+        "senderId": 45,
+        "receiverId": 67,
+        "amount": 90.00,
+        "date": "2023-01-09"
+    },
+    {
+        "transactionId": 10,
+        "senderId": 89,
+        "receiverId": 12,
+        "amount": 400.00,
+        "date": "2023-01-10"
+    }
+]

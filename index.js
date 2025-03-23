@@ -46,7 +46,7 @@ app.post('/balance', (req, res) => {
         return res.status(400).json({ error: 'User ID is required' });
     }
 
-    fs.readFile('user.json', 'utf8', (err, data) => {
+    fs.readFile('data/user.json', 'utf8', (err, data) => {
         if (err) {
             return res.status(500).json({ error: 'Error reading user data' });
         }
@@ -58,11 +58,10 @@ app.post('/balance', (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-
-        return res.json({ balance: user.currentBalance });
+        const message = `Your current bank balance is ${user.currentBalance}`;
+        return res.json({ message });
     });
 });
-
 
 
 // Endpoint to handle GitHub Actions webhook
