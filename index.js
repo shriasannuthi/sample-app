@@ -8,47 +8,49 @@ const PORT = 3000;
 // Middleware to parse JSON requests
 app.use(express.json());
 
+// Serve static files from the 'assets' directory
+app.use(express.static(__dirname + '/assets'));
+
 app.get('/', (req, res) => {
-    res.send('Hello World!');});
+    res.sendFile(__dirname + '/index.html');
+});
 
 // Route where all API traffic will come
 app.post('/api', async (req, res) => {
     const { route } = req.body;
- 
-        if (route === '/balance') {
-            const userId = req.body.userId;
 
-            if (!userId) {
-            return res.status(400).json({ error: 'User ID is required' });
-            }
-            try{
-                const response = await axios.post('http://localhost:3000/balance', { userId })
-                return res.json(response.data);
-            }
-            catch(error){
-                if (error.response) {
-                    res.status(error.response.status).json(error.response.data);
-                    } else {
-                    res.status(500).json({ error: 'Internal server error' });
-                    }
-            }
-        } else if (route === '/transactions') {
-            const userId = req.body.userId;
+    if (route === '/balance') {
+        const userId = req.body.userId;
 
-            if (!userId) {
+        if (!userId) {
             return res.status(400).json({ error: 'User ID is required' });
+        }
+        try {
+            const response = await axios.post('http://localhost:3000/balance', { userId });
+            return res.json(response.data);
+        } catch (error) {
+            if (error.response) {
+                res.status(error.response.status).json(error.response.data);
+            } else {
+                res.status(500).json({ error: 'Internal server error' });
             }
-            try{
-                const response = await axios.post('http://localhost:3000/transactions', { userId })
-                return res.json(response.data);
+        }
+    } else if (route === '/transactions') {
+        const userId = req.body.userId;
+
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
+        try {
+            const response = await axios.post('http://localhost:3000/transactions', { userId });
+            return res.json(response.data);
+        } catch (error) {
+            if (error.response) {
+                res.status(error.response.status).json(error.response.data);
+            } else {
+                res.status(500).json({ error: 'Internal server error' });
             }
-            catch(error){
-                if (error.response) {
-                    res.status(error.response.status).json(error.response.data);
-                    } else {
-                    res.status(500).json({ error: 'Internal server error' });
-                    }
-            }
+        }
     } else {
         res.status(400).json({ error: 'Invalid route' });
     }
@@ -69,8 +71,7 @@ app.post('/balance', (req, res) => {
 
         const users = JSON.parse(data);
         const user = users.find(u => u.userId === userId);
-       
-        
+
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -88,28 +89,26 @@ app.post('/transactions', (req, res) => {
     }
 
     console.log('userId', userId);
-    fs.readFile('transactions.json', 'utf8', (err, data) => {
-
+    fs.readFile('data/transactions.json', 'utf8', (err, data) => {
         if (err) {
             return res.status(500).json({ error: 'Error reading user data' });
         }
-        
+
         const transactions = JSON.parse(data).filter(t => t.senderId === userId || t.receiverId === userId);
-       
+        console.log('transactions', transactions);
+
         if (!transactions) {
             return res.status(404).json({ error: 'No transaction found' });
         }
         const transaction = (transactions.map(t => {
-            return {...t, amount: t.senderId === userId ? -t.amount : t.amount};
+            return { ...t, amount: t.senderId === userId ? -t.amount : t.amount };
         })
-    );
-    
+        );
 
-    const message = transaction.slice(-5);
-    return res.json({ message });
+        const message = transaction.slice(-5);
+        return res.json({ message });
     });
 });
-
 
 // Start the server
 app.listen(PORT, () => {
