@@ -87,6 +87,7 @@ app.post('/transactions', (req, res) => {
         return res.status(400).json({ error: 'User ID is required' });
     }
 
+    console.log('userId', userId);
     fs.readFile('transactions.json', 'utf8', (err, data) => {
         if (err) {
             return res.status(500).json({ error: 'Error reading user data' });
