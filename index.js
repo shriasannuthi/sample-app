@@ -62,7 +62,7 @@ app.post('/balance', (req, res) => {
         return res.status(400).json({ error: 'User ID is required' });
     }
 
-    fs.readFile('user.json', 'utf8', (err, data) => {
+    fs.readFile('data/user.json', 'utf8', (err, data) => {
         if (err) {
             return res.status(500).json({ error: 'Error reading user data' });
         }
@@ -74,8 +74,8 @@ app.post('/balance', (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-
-        return res.json({ balance: user.currentBalance });
+        const message = `Your current bank balance is ${user.currentBalance}`;
+        return res.json({ message });
     });
 });
 
@@ -89,6 +89,7 @@ app.post('/transactions', (req, res) => {
 
     console.log('userId', userId);
     fs.readFile('transactions.json', 'utf8', (err, data) => {
+
         if (err) {
             return res.status(500).json({ error: 'Error reading user data' });
         }
@@ -102,21 +103,29 @@ app.post('/transactions', (req, res) => {
             return {...t, amount: t.senderId === userId ? -t.amount : t.amount};
         })
     );
+    const transactionMessages = transaction.slice(-5).map(t => {
+        return `Transaction ID: ${t.transactionId}, Amount: ${t.amount}, Type: ${t.senderId === userId ? 'Debit' : 'Credit'}, Date: ${t.date}`;
+    });
 
-        return res.json({ transactions: transaction.slice(-5) });
+    const message = `Your last 5 transactions are listed below:\n\n${transactionMessages.join('\n')}`;
+    return res.json({ message });
     });
 });
 
 // Endpoint to handle GitHub Actions webhook
-app.post('/github-webhook', (req, res) => {
+app.post('/github-webhook', async (req, res) => {
     const webhookPayload = req.body;
     console.log("webhook called");
-    
-    // Log the webhook payload
     console.log('Received GitHub Actions webhook:', webhookPayload);
 
-    // Respond to GitHub
-    res.status(200).json({ message: 'Webhook received successfully' });
+    try {
+        await axios.post('http://localhost:5000/contextualTesting', webhookPayload);
+        res.status(200).json({ message: 'Webhook forwarded successfully' });
+    } catch (error) {
+        console.error('Error forwarding webhook:', error.message);
+        res.status(500).json({ error: 'Failed to forward webhook' });
+    }
+
 });
 
 // Start the server
