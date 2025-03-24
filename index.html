@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: url('/background.jpg') center/cover no-repeat;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .wf-header {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            background-color: #b81c1c;
+            padding: 1rem;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .wf-logo img {
+            height: 40px;
+        }
+
+        .chat-container {
+            margin-top: 80px;
+            padding: 20px;
+            background: rgba(255, 255, 255);
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 700px;
+        }
+
+        .chatbox {
+            /* width: 100%; */
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            height: 40vh;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+
+        .message {
+            padding: 5px;
+            margin: 5px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+
+        .user {
+            background: #ffffff;
+            text-align: right;
+            margin-left: auto;
+            padding: 10px;
+        }
+
+        .bot {
+            background: #F4F0ED;
+            text-align: left;
+            padding: 10px;
+        }
+
+        input {
+            margin-top: 10px;
+            padding: 12px;
+            border: 2px solid #b81c1c;
+            border-radius: 5px;
+            width: 90%;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 12px 20px;
+            background-color: #b81c1c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: white;
+            color: #b81c1c;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1)
+        }
+    </style>
+</head>
+
+<body>
+    <header class="wf-header">
+        <div class="wf-logo">
+            <img src="/wf_logo.webp" alt="Wells Fargo Logo" style="height: 3vh; width: auto;">
+        </div>
+    </header>
+
+    <div class="chat-container">
+        <h2>Chatbot</h2>
+        <div class="chatbox" id="chatbox"></div>
+
+        <div id="userIdContainer">
+            <input type="number" id="userIdInput" placeholder="Enter your User ID" />
+            <button onclick="setUserId()">Submit</button>
+        </div>
+
+        <div id="chatControls" style="display: none;">
+            <input type="text" id="userInput" placeholder="Enter your query" />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        let userId = null;
+
+        function setUserId() {
+            userId = document.getElementById("userIdInput").value.trim();
+            if (!userId) {
+                alert("Please enter a valid User ID.");
+                return;
+            }
+            document.getElementById("userIdContainer").style.display = "none";
+            document.getElementById("chatControls").style.display = "block";
+            displayMessage("User ID set successfully!", "bot");
+        }
+
+        async function sendMessage() {
+            if (!userId) {
+                alert("Please enter a User ID first.");
+                return;
+            }
+
+            let inputField = document.getElementById("userInput");
+            let message = inputField.value.trim();
+            if (!message) return;
+
+            displayMessage(message, "user");
+
+            let route;
+            if (message.toLowerCase() === "what's my balance?" || message.toLowerCase() === "balance") {
+                route = "/balance";
+            } else if (message.toLowerCase() === "what are my transactions?" || message.toLowerCase() === "transactions") {
+                route = "/transactions";
+            } else {
+                inputField.value = "";
+                alert("Please enter a valid query.");
+                return;
+            }
+
+            try {
+                let response = await fetch("http://localhost:3000/api", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ route, userId })
+                });
+
+                let data = await response.json();
+                if (route === "/transactions" && Array.isArray(data.message)) {
+                    let transactionMessages = data.message.map(transaction => `
+                        <div style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; margin: 10px 0; background: #f4f4f4;">
+                            <p><strong>Transaction ID:</strong> ${transaction.transactionId}</p>
+                            <p><strong>Sender ID:</strong> ${transaction.senderId}</p>
+                            <p><strong>Receiver ID:</strong> ${transaction.receiverId}</p>
+                            <p><strong>Amount:</strong> $${transaction.amount}</p>
+                            <p><strong>Date:</strong> ${transaction.date}</p>
+                        </div>`).join('');
+                    displayMessage(transactionMessages, "bot", true);
+                } else {
+                    displayMessage(data.message || JSON.stringify(data), "bot");
+                }
+            } catch (error) {
+                displayMessage("Error fetching data", "bot");
+            }
+
+            inputField.value = "";
+        }
+
+        function displayMessage(text, sender, isHtml = false) {
+            let chatbox = document.getElementById("chatbox");
+            let messageDiv = document.createElement("div");
+            messageDiv.className = "message " + sender;
+            if (isHtml) {
+                messageDiv.innerHTML = text;
+            } else {
+                messageDiv.textContent = text;
+            }
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        document.getElementById("userIdInput").addEventListener("keydown", function (event) {
+            if (event.keyCode === 13) {
+                setUserId();
+            }
+        });
+
+        document.getElementById("userInput").addEventListener("keydown", function (event) {
+            if (event.keyCode === 13) {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+
+</html>
