@@ -32,26 +32,7 @@ app.post('/api', async (req, res) => {
                     res.status(500).json({ error: 'Internal server error' });
                     }
             }
-        } 
-    //     else if (route === '/transactions') {
-    //         const userId = req.body.userId;
-
-    //         if (!userId) {
-    //         return res.status(400).json({ error: 'User ID is required' });
-    //         }
-    //         try{
-    //             const response = await axios.post('http://localhost:3000/transactions', { userId })
-    //             return res.json(response.data);
-    //         }
-    //         catch(error){
-    //             if (error.response) {
-    //                 res.status(error.response.status).json(error.response.data);
-    //                 } else {
-    //                 res.status(500).json({ error: 'Internal server error' });
-    //                 }
-    //         }
-    // } 
-        else if (route === '/transactions') {
+        } else if (route === '/transactions') {
             const userId = req.body.userId;
 
             if (!userId) {
@@ -68,8 +49,7 @@ app.post('/api', async (req, res) => {
                     res.status(500).json({ error: 'Internal server error' });
                     }
             }
-    } 
-    else {
+    } else {
         res.status(400).json({ error: 'Invalid route' });
     }
 });
@@ -100,31 +80,6 @@ app.post('/balance', (req, res) => {
 });
 
 // Endpoint to return last 5 transactions
-// app.post('/transactions', (req, res) => {
-//     const userId = parseInt(req.body.userId, 10);
-
-//     if (!userId) {
-//         return res.status(400).json({ error: 'User ID is required' });
-//     }
-
-//     fs.readFile('transactions.json', 'utf8', (err, data) => {
-//         if (err) {
-//             return res.status(500).json({ error: 'Error reading user data' });
-//         }
-        
-//         const transactions = JSON.parse(data).filter(t => t.senderId === userId || t.receiverId === userId);
-       
-//         if (!transactions) {
-//             return res.status(404).json({ error: 'No transaction found' });
-//         }
-//         const transaction = (transactions.map(t => {
-//             return {...t, amount: t.senderId === userId ? -t.amount : t.amount};
-//         })
-//     );
-
-//         return res.json({ transactions: transaction.slice(-5) });
-//     });
-// });
 app.post('/transactions', (req, res) => {
     const userId = parseInt(req.body.userId, 10);
 
@@ -132,9 +87,9 @@ app.post('/transactions', (req, res) => {
         return res.status(400).json({ error: 'User ID is required' });
     }
 
-
     console.log('userId', userId);
     fs.readFile('transactions.json', 'utf8', (err, data) => {
+
         if (err) {
             return res.status(500).json({ error: 'Error reading user data' });
         }
@@ -148,6 +103,8 @@ app.post('/transactions', (req, res) => {
             return {...t, amount: t.senderId === userId ? -t.amount : t.amount};
         })
     );
+    
+
     const message = transaction.slice(-5);
     return res.json({ message });
     });
