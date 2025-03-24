@@ -101,26 +101,13 @@ app.post('/transactions', (req, res) => {
             return {...t, amount: t.senderId === userId ? -t.amount : t.amount};
         })
     );
-    const transactionMessages = transaction.slice(-5).map(t => {
-        return `Transaction ID: ${t.transactionId}, Amount: ${t.amount}, Type: ${t.senderId === userId ? 'Debit' : 'Credit'}, Date: ${t.date}`;
-    });
+    
 
-    const message = `Your last 5 transactions are listed below:\n\n${transactionMessages.join('\n')}`;
+    const message = transaction.slice(-5);
     return res.json({ message });
     });
 });
 
-// Endpoint to handle GitHub Actions webhook
-app.post('/github-webhook', (req, res) => {
-    const webhookPayload = req.body;
-    console.log("webhook called");
-    
-    // Log the webhook payload
-    console.log('Received GitHub Actions webhook:', webhookPayload);
-
-    // Respond to GitHub
-    res.status(200).json({ message: 'Webhook received successfully' });
-});
 
 // Start the server
 app.listen(PORT, () => {
