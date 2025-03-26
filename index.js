@@ -110,6 +110,29 @@ app.post('/transactions', (req, res) => {
     });
 });
 
+// Endpoint to return next upcoming credit card bill
+app.post('/bill', (req, res) => {
+    const userId = parseInt(req.body.userId, 10);
+
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' });
+    }
+
+    fs.readFile('data/bills.json', 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error reading credit card bill data' });
+        }
+
+        const bills = JSON.parse(data).filter(b => b.userId === userId);
+        if (!bills || bills.length === 0) {
+            return res.status(404).json({ error: 'No upcoming credit card bill found' });
+        }
+
+        const nextBill = bills.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+        const message = `Your next credit card bill of ${nextBill.amount} is due on ${nextBill.dueDate}`;
+        return res.json({ message });
+    });
+});
 
 // Start the server
 app.listen(PORT, () => {
